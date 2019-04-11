@@ -24,7 +24,9 @@ RUN wget https://github.com/bazelbuild/bazel/releases/download/0.16.1/bazel_0.16
     && wget https://github.com/bazelbuild/bazel/releases/download/0.16.1/bazel-0.16.1-installer-linux-x86_64.sh \
     && apt -f install \
     && dpkg -i bazel_0.16.1-linux-x86_64.deb \
-    && chmod +x bazel-0.16.1-installer-linux-x86_64.sh && ./bazel-0.16.1-installer-linux-x86_64.sh --user
+    && chmod +x bazel-0.16.1-installer-linux-x86_64.sh && ./bazel-0.16.1-installer-linux-x86_64.sh --user \
+    && rm bazel_0.16.1-linux-x86_64.deb \
+    && rm bazel-0.16.1-installer-linux-x86_64.sh
 
 # tensorflow
 WORKDIR /root/tmp
@@ -63,4 +65,5 @@ RUN bazel build -c opt --config=cuda //tensorflow:libtensorflow_cc.so \
     && ln -s /root/tmp/tensorflow/bazel-bin/tensorflow/libtensorflow_cc.so /usr/local/lib/libtensorflow_cc.so \
     && ln -s /root/tmp/tensorflow/bazel-bin/tensorflow/libtensorflow_framework.so /usr/local/lib/libtensorflow_framework.so \
     && wget https://raw.githubusercontent.com/hagi3085/tf_setInclude/master/collect_headers.sh \
-    && chmod +x collect_headers.sh && ./collect_headers.sh
+    && chmod +x collect_headers.sh && ./collect_headers.sh \
+    && rm collect_headers.sh
