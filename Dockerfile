@@ -62,3 +62,5 @@ RUN bazel build -c opt --config=cuda //tensorflow:libtensorflow.so
 RUN ln -s /root/tmp/tensorflow/bazel-bin/tensorflow/libtensorflow.so /usr/local/lib/libtensorflow.so \
     && ln -s /root/tmp/tensorflow/bazel-bin/tensorflow/libtensorflow_cc.so /usr/local/lib/libtensorflow_cc.so \
     && ln -s /root/tmp/tensorflow/bazel-bin/tensorflow/libtensorflow_framework.so /usr/local/lib/libtensorflow_framework.so
+RUN wget https://github.com/hagi3085/tf_setInclude/collect_headers.sh \
+    && chmod +x collect_headers.sh && ./collect_headers.sh
