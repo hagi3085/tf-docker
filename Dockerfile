@@ -13,6 +13,7 @@ RUN apt install -y python-dev python-numpy python-pip python-wheel
 RUN apt install -y python3-dev python3-numpy python3-pip python3-wheel
 RUN apt update && apt -y upgrade
 RUN apt -f install 
+RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/libcuda.so.1
 
 # ファイルのダウンロード
 RUN mkdir /root/tmp
@@ -30,7 +31,6 @@ WORKDIR /root/tmp
 RUN git clone https://github.com/tensorflow/tensorflow.git
 WORKDIR /root/tmp/tensorflow
 RUN git checkout r1.12
-RUN ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/libcuda.so.1
 ARG TENSORFLOW_VERSION=1.12.0
 ARG TENSORFLOW_DEVICE=gpu
 ARG TENSORFLOW_APPEND=_gpu
@@ -38,24 +38,24 @@ ARG TENSORFLOW_APPEND=_gpu
 ENV PYTHON_BIN_PATH=/usr/bin/python3
 ENV PYTHON_LIB_PATH=/usr/lib/python3.5/dist-packages
 ENV CC_OPT_FLAGS="--config=opt"
+ENV TF_NEED_IGNITE=0
 ENV TF_NEED_OPENCL_SYCL=0
 ENV TF_NEED_ROCM=0
 ENV TF_ENABLE_XLA=0
 ENV TF_NEED_COMPUTECPP=0
-ENV TF_NEED_OPENCL=0
 ENV TF_NEED_CUDA=1
+ENV TF_CUDA_CLANG=0
 ENV TF_NEED_TENSORRT=0
-ENV TF_DOWNLOAD_CLANG=0
 ENV TF_NEED_MPI=0
+ENV TF_NCCL_VERSION=1.3
 ENV TF_SET_ANDROID_WORKSPACE=0
 ENV GCC_HOST_COMPILER_PATH=/usr/bin/gcc
 ENV HOST_CXX_COMPILER=/usr/bin/g++
 ENV CUDA_TOOLKIT_PATH=/usr/local/cuda-9.0
 ENV CUDNN_INSTALL_PATH=/usr
-ENV TF_CUDA_COMPUTE_CAPABILITIES="3.5,5.1,6.1,7.0,7.1"
+ENV TF_CUDA_COMPUTE_CAPABILITIES="3.5,6.1,7.0" 
 ENV LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:/usr/local/cuda-9.0/extras/CUPTI/lib64:/usr/local/cuda-9.0/lib64/stubs
 ENV CUDA_PATH=/usr/local/cuda-9.0
-ENV TF_CUDA_CLANG=0
 RUN ./configure
 RUN bazel build -c opt --config=cuda //tensorflow:libtensorflow_cc.so
 RUN bazel build -c opt --config=cuda //tensorflow:libtensorflow.so
