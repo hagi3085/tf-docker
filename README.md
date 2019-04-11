@@ -1,11 +1,12 @@
-# nvidia-docker2上にtensorflowをビルドするためのファイル置き場
+# nvidia-docker2上にtensorflowをビルド
 
 ## 内容
-　　Dockerfile: tensorflow-v1.12をインストールしたりビルドしたりする  
-    collect_headers: build後に必要なヘッダーファイルを一箇所に収集するためのシェルスクリプト
+Dockerfile: tensorflow-v1.12をインストールしたりビルドしたりする  
+collect_headers: build後に必要なヘッダーファイルを一箇所に収集するためのシェルスクリプト
 
 ## Dockerfileの実行前にすること
   * 自分の環境に合わせてDockerfileを変更する  
+  tensorflowとbazelの対応関係は[tensorflowの公式ページ](https://www.tensorflow.org/install/source)を参考にする
 
 #### 変更箇所一覧
 | 行数    | 変更内容                                              |
