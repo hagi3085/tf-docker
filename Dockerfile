@@ -15,6 +15,15 @@ RUN apt update && apt -y upgrade \
     && apt -f install \
     && ln -s /usr/local/cuda/lib64/stubs/libcuda.so /usr/lib/x86_64-linux-gnu/libcuda.so.1
 
+# パッケージのインストール(ディスプレイ表示用)
+RUN apt install -y libssl-dev libbz2-dev libsqlite3-dev libreadline-dev zlib1g-dev libasound2-dev \
+    && apt install -y libxss1 libxtst6 gdebi
+
+# vscode をインストールする
+RUN wget -O vscode-amd64.deb https://go.microsoft.com/fwlink/?LinkID=760868 \
+    && yes | gdebi vscode-amd64.deb \
+    && rm vscode-amd64.deb
+
 # ファイルのダウンロード
 RUN mkdir /root/tmp
 # bazel
