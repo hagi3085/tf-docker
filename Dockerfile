@@ -82,8 +82,8 @@ WORKDIR /root/tmp/
 RUN git clone --recursive https://github.com/boostorg/boost.git \
     && cd boost \
     && ./bootstrap.sh \
-    && ./b2 toolset=gcc --prefix=/usr/local -j7 \
-    echo "export INCLUDE_PATH=$INCLUDE_PATH:/root/tmp/boost" >> ~/.bashrc \
-    echo "export LIBRARY_PATH=$LIBRARY_PATH:/root/tmp/boost/stage/lib" >> ~/.bashrc
+    && ./b2 toolset=gcc --prefix=/usr/local -j7 
+RUN echo "export INCLUDE_PATH=$INCLUDE_PATH:/root/tmp/boost" >> ~/.bashrc \
+    && echo "export LIBRARY_PATH=$LIBRARY_PATH:/root/tmp/boost/stage/lib" >> ~/.bashrc
 
 WORKDIR /home
