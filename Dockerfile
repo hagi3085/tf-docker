@@ -76,3 +76,14 @@ RUN ./configure \
     && wget https://raw.githubusercontent.com/hagi3085/tf_setInclude/master/collect_headers.sh \
     && chmod +x collect_headers.sh && ./collect_headers.sh \
     && rm collect_headers.sh
+
+# boostのインストール
+WORKDIR /root/tmp/
+RUN git clone --recursive https://github.com/boostorg/boost.git \
+    && cd boost \
+    && ./bootstrap.sh \
+    && ./b2 toolset=gcc --prefix=/usr/local -j7 \
+    echo "export INCLUDE_PATH=$INCLUDE_PATH:/root/tmp/boost" >> ~/.bashrc \
+    echo "export LIBRARY_PATH=$LIBRARY_PATH:/root/tmp/boost/stage/lib" >> ~/.bashrc
+
+WORKDIR /home
