@@ -44,7 +44,7 @@ fi
   echo "prefix=/usr/local"
   echo 'exec_prefix=${prefix}'
   echo 'libdir=${exec_prefix}/lib'
-  echo "includedir=/root/tensorflow/include/"
+  echo "includedir=/root/tensorflow/include"
 
 
   echo "Name: tensorflow"
@@ -52,6 +52,6 @@ fi
   echo "Description: tensorflow Library"
   echo 'Libs: -L${exec_prefix}/lib -L/usr/local/lib -ltensorflow_cc -ltensorflow_framework -std=c++11'
   echo "Libs.private: -lcublas -lcufft -L-L/usr/local/cuda -llib64"
-  echo 'Cflags: -I${includedir} -I${includedir}com_google_absl'
+  echo 'Cflags: -I${includedir} -I${includedir}/com_google_absl'
 } > /usr/local/lib/pkgconfig/tensorflow.pc
 
