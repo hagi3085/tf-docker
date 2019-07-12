@@ -1,6 +1,6 @@
 # docker上でtensorflow c++を実行できる環境の作成
 # 基盤のdocker
-FROM nvidia/cuda:9.0-cudnn7-devel
+FROM nvidia/cuda:9.2-cudnn7-devel-ubuntu16.04
 # 作成ユーザー
 MAINTAINER hagi3085
 # 実行コマンド
@@ -18,11 +18,6 @@ RUN apt update && apt -y upgrade \
 # パッケージのインストール(ディスプレイ表示用)
 RUN apt install -y libssl-dev libbz2-dev libsqlite3-dev libreadline-dev zlib1g-dev libasound2-dev \
     && apt install -y libxss1 libxtst6 gdebi
-
-# vscode をインストールする
-RUN wget -O vscode-amd64.deb https://go.microsoft.com/fwlink/?LinkID=760868 \
-    && yes | gdebi vscode-amd64.deb \
-    && rm vscode-amd64.deb
 
 # ファイルのダウンロード
 RUN mkdir /root/tmp
@@ -42,9 +37,38 @@ WORKDIR /root/tmp
 RUN git clone https://github.com/tensorflow/tensorflow.git
 WORKDIR /root/tmp/tensorflow
 RUN git checkout r1.12
-ARG TENSORFLOW_VERSION=1.12.0
+ARG TENSORFLOW_VERSION=1.12.3
 ARG TENSORFLOW_DEVICE=gpu
 ARG TENSORFLOW_APPEND=_gpu
+
+
+# boostのインストール
+WORKDIR /root/tmp/
+RUN git clone --recursive https://github.com/boostorg/boost.git \
+    && cd boost \
+    && ./bootstrap.sh \
+    && ./b2 toolset=gcc --prefix=/usr/local -j8 \
+    && ./b2 install
+RUN echo 'export INCLUDE_PATH=$INCLUDE_PATH:/root/tmp/boost' >> ~/.bashrc \
+    && echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/tmp/boost/stage/lib' >> ~/.bashrc 
+
+# python版tensorflowのインストール
+RUN pip3 install tensorflow-gpu==1.12.3 keras==2.1.6
+
+# opencv 
+# RUN mkdir /root/tmp/
+RUN git clone https://github.com/opencv/opencv.git
+WORKDIR /root/tmp/opencv
+RUN mkdir ./build && apt install -y cmake
+WORKDIR /root/tmp/opencv/build
+RUN cmake -D CMAKE_BUILD_TYPE=Release \
+    -D CMAKE_INSTALL_PREFIX=/usr/local \
+    -D OPENCV_GENERATE_PKGCONFIG=ON ..  \
+    && make -j8 \
+    && make install \
+    && ldconfig
+
+
 
 ENV PYTHON_BIN_PATH=/usr/bin/python3 \
     PYTHON_LIB_PATH=/usr/lib/python3.5/dist-packages \
@@ -62,11 +86,14 @@ ENV PYTHON_BIN_PATH=/usr/bin/python3 \
     TF_SET_ANDROID_WORKSPACE=0 \
     GCC_HOST_COMPILER_PATH=/usr/bin/gcc \
     HOST_CXX_COMPILER=/usr/bin/g++ \
-    CUDA_TOOLKIT_PATH=/usr/local/cuda-9.0 \
+    CUDA_TOOLKIT_PATH=/usr/local/cuda-9.2 \
     CUDNN_INSTALL_PATH=/usr \
-    TF_CUDA_COMPUTE_CAPABILITIES="3.5,6.1,7.0"  \
-    LD_LIBRARY_PATH=/usr/local/cuda-9.0/lib64:/usr/local/cuda-9.0/extras/CUPTI/lib64:/usr/local/cuda-9.0/lib64/stubs \
-    CUDA_PATH=/usr/local/cuda-9.0
+    TF_CUDA_COMPUTE_CAPABILITIES="6.1,7.0,7.5"  \
+    LD_LIBRARY_PATH=/usr/local/cuda-9.2/lib64:/usr/local/cuda-9.2/extras/CUPTI/lib64:/usr/local/cuda-9.2/lib64/stubs \
+    CUDA_PATH=/usr/local/cuda-9.2 \
+    TF_CUDA_VERSION=9.2
+
+WORKDIR /root/tmp/tensorflow
 RUN ./configure \
     && bazel build -c opt --config=cuda //tensorflow:libtensorflow_cc.so \
     && bazel build -c opt --config=cuda //tensorflow:libtensorflow.so \
@@ -76,14 +103,5 @@ RUN ./configure \
     && wget https://raw.githubusercontent.com/hagi3085/tf_setInclude/master/collect_headers.sh \
     && chmod +x collect_headers.sh && ./collect_headers.sh \
     && rm collect_headers.sh
-
-# boostのインストール
-WORKDIR /root/tmp/
-RUN git clone --recursive https://github.com/boostorg/boost.git \
-    && cd boost \
-    && ./bootstrap.sh \
-    && ./b2 toolset=gcc --prefix=/usr/local -j8 
-RUN echo "export INCLUDE_PATH=$INCLUDE_PATH:/root/tmp/boost" >> ~/.bashrc \
-    && echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/tmp/boost/stage/lib" >> ~/.bashrc
 
 WORKDIR /home
